@@ -16,6 +16,7 @@ public class TestCase08
 	// Check that the skiplist's size and height are as expected. If not, fail whale.
 	private static void checkList(SkipList<Integer> s, int expectedSize, int expectedHeight)
 	{
+
 		if (s.size() != expectedSize || s.height() != expectedHeight)
 		{
 			System.out.println("fail whale :(");
@@ -43,6 +44,7 @@ public class TestCase08
 
 		skiplist.insert(r = RNG.getUniqueRandomInteger());
 		checkList(skiplist, size = 5, height = 3);
+
 
 		// Loop through skip list and get the heights of all the nodes.
 		Node<Integer> temp = skiplist.head().next(0);

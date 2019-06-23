@@ -41,7 +41,6 @@ public class TestCase06
 		end = System.nanoTime();
 		totalTime += (end - start);
 
-		skiplist.print();
 
 		// Check that the total search time was reasonably fast (not linear search).
 		// This time limit will be unreasonable on Eustis, but will probably be

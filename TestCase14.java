@@ -87,6 +87,7 @@ public class TestCase14
 			temp = temp.next(0);
 		}
 
+
 		// Delete 25. This should delete the first instance, which at the point
 		// should be the one with height 1.
 		s.delete(25);

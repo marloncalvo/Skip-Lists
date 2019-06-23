@@ -64,11 +64,11 @@ class Node<T>
     
     public void trim(int height)
     {
-        for (int i = this.height; i > height; i--)
+        for (int i = this.height - 1; i > height - 1; i--)
         {
             this.skips.remove(i);
         }
-      
+
         this.height = height;
     }
 
@@ -122,7 +122,7 @@ public class SkipList<T extends Comparable<T>>
 
         int height = generateRandomHeight(getMaxHeight(size()));
         insert(data, height);
-        //System.out.println(counter++);
+//        System.out.println(counter++);
     }
     public void insert(T data, int height)
     {
@@ -161,7 +161,9 @@ public class SkipList<T extends Comparable<T>>
 
         for (int i = 0; i < height; i++)
         {
-            nodesToLink.get(i).setNext(i, nNode);
+            try {
+                nodesToLink.get(i).setNext(i, nNode);
+            } catch (IndexOutOfBoundsException e) {}
         }
 
         size++;
@@ -175,13 +177,13 @@ public class SkipList<T extends Comparable<T>>
     public void delete(T data)
     {
         // assuming max height is of root, if we encounter a larger node then size will increase
-        ArrayList<Node<T>> nodesToLink = new ArrayList<>(this.height());
+        ArrayList<Node<T>> nodesToLink = new ArrayList<>(Collections.nCopies(this.height(), this.head()));
         Node<T> itr = this.head();
 
         int level = this.height() - 1;
         while(level > -1)
         {
-            if (itr.next(level) == null || data.compareTo(itr.next(level).value()) < 0)
+            if (itr.next(level) == null || data.compareTo(itr.next(level).value()) <= 0)
             {
                 level--;
                 continue;
@@ -189,11 +191,6 @@ public class SkipList<T extends Comparable<T>>
 
             itr = itr.next(level);
             level = itr.height() - 1;
-
-            if (data.compareTo(itr.value()) == 0)
-            {
-                break;
-            }
 
             for (int i = 0; i < itr.height(); i++)
             {
@@ -209,21 +206,26 @@ public class SkipList<T extends Comparable<T>>
         }
 
         // we fell off list and didnt find the element
-        if (level == -1)
+        if (itr.next(0) == null || data.compareTo(itr.next(0).value()) != 0)
         {
             return;
         }
 
+        itr = itr.next(0);
+
         for (int i = 0; i < itr.height(); i++)
         {
+            try
+            {
             nodesToLink.get(i).setNext(i, itr.next(i));
+            } catch (IndexOutOfBoundsException e) {}
         }
 
         this.size--;
 
-        if (this.height() < this.getMaxHeight(size))
+        if (this.height() > this.getMaxHeightDel(size))
         {
-            this.trimSkipList();
+            this.trimSkipList(this.getMaxHeightDel(size));
         }
     }
     
@@ -272,6 +274,12 @@ public class SkipList<T extends Comparable<T>>
         int calcMax = (int) Math.ceil(Math.log10(n)/Math.log10(2));
         return (this.height() > calcMax ? this.height() : calcMax > 0 ? calcMax : 1);
     }
+
+    private int getMaxHeightDel(int n)
+    {
+        int calcMax = (int) Math.ceil(Math.log10(n)/Math.log10(2));
+        return (calcMax > 0 ? calcMax : 1);
+    }
     
     private static int generateRandomHeight(int maxHeight)
     {
@@ -290,18 +298,15 @@ public class SkipList<T extends Comparable<T>>
         return height;
     }
 
-    private void trimSkipList()
+    private void trimSkipList(int height)
     {
-        int oldLevel = this.height() - 1;
-        int newLevel = oldLevel - 1;
-
         Node<T> itr = this.head();
         Node<T> curr = this.head();
 
         while (itr != null)
         {
-            itr = itr.next(oldLevel);
-            curr.trim(newLevel);
+            itr = itr.next(height);
+            curr.trim(height);
 
             curr = itr;
         }
@@ -318,8 +323,8 @@ public class SkipList<T extends Comparable<T>>
         Node<T> prevMax = this.head();
 
         while (itr != null)
-        {   
-            if (itr.maybeGrow() == true)
+        {  
+            if (itr.height() == this.height() || itr.maybeGrow() == true)
             {
                 prevMax.setNext(newLevel, itr);
                 prevMax = itr;
@@ -330,34 +335,51 @@ public class SkipList<T extends Comparable<T>>
     }
     
     public void print()
-	{
-		Node<T> itr = root;
+        {
+                Node<T> itr = root;
 
-		int levels = root.height();
-		System.out.println("====================================");
-		System.out.println("Printing list current status");
-		for (int i = levels - 1; i > -1; i--)
-		{
-			itr = root;
-			while (itr != null)
-			{
-				Node<T> next = itr.next(i);
-				System.out.printf("%-15s", (next == null ? "null" : next.value()));
-				itr = itr.next(0);
-			}
-			System.out.println();
-		}
+                int levels = root.height();
+                System.out.println("====================================");
+                System.out.println("Printing list current status");
+                for (int i = levels - 1; i > -1; i--)
+                {
+                        itr = root;
+                        while (itr != null)
+                        {
+                                Node<T> next = itr.next(i);
+                                System.out.printf("%-15s", (next == null ? "null" : next.value()));
+                                itr = itr.next(0);
+                        }
+                        System.out.println();
+                }
 
-		itr = root;
-		while (itr != null)
-		{
-			System.out.printf("%-15s", itr.value());
-			itr = itr.next(0);
-		}
+                itr = root;
+                while (itr != null)
+                {
+                        System.out.printf("%-15s", itr.value());
+                        itr = itr.next(0);
+                }
+        
+                System.out.println();
 
-		System.out.println("\n====================================");
+                itr = root;
+                while (itr != null)
+                {
+                        System.out.printf("%-15s", "-");
+                        itr = itr.next(0);
+                }
+    
+                System.out.println();
+                itr = root;
+                while (itr != null)
+                {
+                        System.out.printf("%-15d", itr.height());
+                        itr = itr.next(0);
+                }
 
-	}
+                System.out.println("\n====================================");
+
+        }
 }
     
     
