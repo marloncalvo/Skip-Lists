@@ -42,7 +42,14 @@ class Node<T>
     
     public void setNext(int level, Node<T> node)
     {        
-        this.skips.set(level, node);
+        if (level > this.skips.size() - 1)
+        {
+            this.skips.add(node);
+        }
+        else
+        {
+            this.skips.set(level, node);
+        }
     }
     
     public void grow()
@@ -155,7 +162,13 @@ public class SkipList<T extends Comparable<T>>
             for (int i = 0; i < adjLevels; i++)
             {
                 nNode.setNext(i, itr.next(i));
-                nodesToLink.set(i, itr);
+                try
+                {
+                    nodesToLink.set(i, itr);
+                } catch (IndexOutOfBoundsException e)
+                {
+                    nodesToLink.add(itr);
+                }
             }
         }
 
