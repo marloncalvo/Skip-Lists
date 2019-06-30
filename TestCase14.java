@@ -20,6 +20,7 @@ public class TestCase14
 		for (int i = 0; i < values.length; i++)
 		{
 			temp = temp.next(level);
+
 			if (temp.value().compareTo(values[i]) != 0)
 				return false;
 		}
