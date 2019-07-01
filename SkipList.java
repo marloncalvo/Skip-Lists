@@ -241,16 +241,22 @@ public class SkipList<T extends Comparable<? super T>>
             // Checks if the Node to delete is higher than the root size, then we must avoid
             // those Nodes. It is setup like this because there can be another Node larger than root
             // who is shorther than the Node to delete, and we would not have that height.
-            try {nodesToLink.get(i).setNext(i, itr.next(i));} 
-            catch (IndexOutOfBoundsException e) {}
+            try 
+            {
+                nodesToLink.get(i).setNext(i, itr.next(i));
+            } 
+            catch (IndexOutOfBoundsException e) 
+            {
+                // do nothing
+            }
         }
 
         this.size--;
 
         // Check if list must be trimmed, size will be reduced to optimal height
-        if (this.height() > this.getMaxHeightDel(this.size()))
+        if (this.height() > this.getMaxHeight(this.size()))
         {
-            this.trimSkipList(this.getMaxHeightDel(this.size()));
+            this.trimSkipList(this.getMaxHeight(this.size()));
         }
     }
 
@@ -306,20 +312,9 @@ public class SkipList<T extends Comparable<? super T>>
     {
         return 20;
     }
-    
-    // Gets maxHeight for a certain size of list, it returns the highest of
-    // current height and caculated size for instances where custom initial height is supplied
-    private int getMaxHeight(int n)
-    {
-        // Max Height = cieling of log(n)/log(2)
-        int calcMax = (int) Math.ceil(Math.log10(n)/Math.log10(2));
-        
-        // we want to return the highest of height and calculated max, but never return 0
-        return (this.height() > calcMax ? this.height() : calcMax > 0 ? calcMax : 1);
-    }
 
-    // Same as getMaxHeight, but we do not take into account the initial height supplied
-    private int getMaxHeightDel(int n)
+    // Get max height for List, defined by cieling of log(n)/log(2)
+    private int getMaxHeight(int n)
     {
         int calcMax = (int) Math.ceil(Math.log10(n)/Math.log10(2));
 
