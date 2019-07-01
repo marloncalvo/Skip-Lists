@@ -1,3 +1,15 @@
+// Marlon Calvo
+// COP3503C-19 C001, Summer '19
+// NID: ma627468
+
+// This class provides a SkipList implementation that implements insert, delete,
+// get, search operations in O(logn) runtime. It provides constructors and methods
+// to set List height / Node height individually, while handling any disparities
+// between root height / Node height (if root height < Node height, for example).
+//
+// It orders the list in ascending order, and requires that whatever Object it is
+// to hold, must implement Comparable.
+
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -66,7 +78,7 @@ class Node<T>
     {
         if (Math.random() > 0.5)
         {
-            grow();
+            this.grow();
             return true;
         }
         
@@ -91,7 +103,7 @@ class Node<T>
     }
 }
 
-public class SkipList<T extends Comparable<T>>
+public class SkipList<T extends Comparable<? super T>>
 {
     private int size;
     private Node<T> root;
@@ -99,7 +111,7 @@ public class SkipList<T extends Comparable<T>>
     // Creates a root Node of height 1
     SkipList()
     {
-        root = new Node<T>(1);
+        this.root = new Node<T>(1);
     }
     
     // Creates a root Node of height specified
@@ -107,11 +119,11 @@ public class SkipList<T extends Comparable<T>>
     {
         if (height < 1)
         {
-            root = new Node<T>(1);
+            this.root = new Node<T>(1);
         }
         else
         {
-            root = new Node<T>(height);
+            this.root = new Node<T>(height);
         }
     }
     
@@ -136,8 +148,8 @@ public class SkipList<T extends Comparable<T>>
     // Inserts value into list in ascending order, height probalistically generated if none specified
     public void insert(T data)
     {
-        int height = generateRandomHeight(getMaxHeight(size()));
-        insert(data, height);
+        int height = generateRandomHeight(getMaxHeight(this.size()));
+        this.insert(data, height);
     }
 
     // Value inserted into list with specified height, can be larger than the size of root itself.
@@ -145,7 +157,7 @@ public class SkipList<T extends Comparable<T>>
     // root size is greater than it.
     public void insert(T data, int height)
     {
-        Node<T> itr = root;
+        Node<T> itr = this.head();
         Node<T> nNode = new Node<T>(data, height);
 
         // Search for closest element to data, and insert that element there
@@ -174,9 +186,9 @@ public class SkipList<T extends Comparable<T>>
         size++;
         
         // Check if we need to grow the list size
-        if (height() < getMaxHeight(size))
+        if (this.height() < this.getMaxHeight(size))
         {
-            growSkipList();
+            this.growSkipList();
         }
     }
      
@@ -236,9 +248,9 @@ public class SkipList<T extends Comparable<T>>
         this.size--;
 
         // Check if list must be trimmed, size will be reduced to optimal height
-        if (this.height() > this.getMaxHeightDel(size))
+        if (this.height() > this.getMaxHeightDel(this.size()))
         {
-            this.trimSkipList(this.getMaxHeightDel(size));
+            this.trimSkipList(this.getMaxHeightDel(this.size()));
         }
     }
 
@@ -301,6 +313,8 @@ public class SkipList<T extends Comparable<T>>
     {
         // Max Height = cieling of log(n)/log(2)
         int calcMax = (int) Math.ceil(Math.log10(n)/Math.log10(2));
+        
+        // we want to return the highest of height and calculated max, but never return 0
         return (this.height() > calcMax ? this.height() : calcMax > 0 ? calcMax : 1);
     }
 
@@ -308,6 +322,8 @@ public class SkipList<T extends Comparable<T>>
     private int getMaxHeightDel(int n)
     {
         int calcMax = (int) Math.ceil(Math.log10(n)/Math.log10(2));
+
+        // we do not want to return 0
         return (calcMax > 0 ? calcMax : 1);
     }
     
@@ -374,9 +390,9 @@ public class SkipList<T extends Comparable<T>>
     // Helper function to print the current status of the SkipList
     public void print()
     {
-        Node<T> itr = root;
+        Node<T> itr = this.head();
 
-        int levels = root.height();
+        int levels = this.head().height();
 
         int max = 0;
         while (itr != null)
@@ -405,7 +421,7 @@ public class SkipList<T extends Comparable<T>>
                 System.out.println();
         }
 
-        itr = root;
+        itr = this.head();
         while (itr != null)
         {
                 System.out.printf("%-15s", ((index++ == 0) ? "root" : itr.value()));
@@ -414,7 +430,7 @@ public class SkipList<T extends Comparable<T>>
 
         System.out.println();
 
-        itr = root;
+        itr = this.head();
         while (itr != null)
         {
                 System.out.printf("%-15s", "-");
@@ -423,7 +439,7 @@ public class SkipList<T extends Comparable<T>>
 
         System.out.println();
 
-        itr = root;
+        itr = this.head();
         while (itr != null)
         {
                 System.out.printf("%-15d", itr.height());
@@ -431,6 +447,5 @@ public class SkipList<T extends Comparable<T>>
         }
 
         System.out.println("\n====================================");
-
     }
 }
