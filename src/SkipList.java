@@ -1,6 +1,4 @@
 // Marlon Calvo
-// COP3503C-19 C001, Summer '19
-// NID: ma627468
 
 // This class provides a SkipList implementation that implements insert, delete,
 // get, search operations in O(logn) runtime. It provides constructors and methods
